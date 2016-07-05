@@ -19,6 +19,7 @@ trait SampleGatlingConfig extends Simulation {
     .acceptEncodingHeader("gzip, deflate")
     .userAgentHeader("Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0")
     .extraInfoExtractor { extraInfo => List(getExtraInfo(extraInfo)) }
+
   private def getExtraInfo(extraInfo: ExtraInfo): String = {
     ",\tURL:" + extraInfo.request.getUrl + // "\tparams\t" + extraInfo.request.getQueryParams.toArray().mkString("\t") +
       " Request: " + extraInfo.request.getStringData +
