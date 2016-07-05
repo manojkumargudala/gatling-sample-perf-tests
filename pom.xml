@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>manoj.gatling.sample</groupId>
+	<artifactId>gatling-sample-perf-tests</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<properties>
+		<gatling.version>2.2.0</gatling.version>
+		<gatling-plugin.version>2.2.0</gatling-plugin.version>
+		<gatling.skip>false</gatling.skip>
+
+		<!-- Information required to start EC2 instances and control them via SSH -->
+		<ssh.private.key>${user.home}/.ssh/loadtest.pem</ssh.private.key>
+		<ec2.key.pair.name>loadtest-keypair</ec2.key.pair.name>
+		<ec2.security.group>default</ec2.security.group>
+		<ec2.instance.count>1</ec2.instance.count>
+		<ec2.instance.type>m3.medium</ec2.instance.type>
+
+		<gatling.local.home>${project.basedir}/gatling/gatling-charts-highcharts-bundle-${gatling.version}/bin/gatling.sh</gatling.local.home>
+		<gatling.install.script>${project.basedir}/src/test/resources/install-gatling.sh</gatling.install.script>
+		<gatling.root>gatling-charts-highcharts-bundle-${gatling.version}</gatling.root>
+		<gatling.java.opts> -Xms1g -Xmx25g -Xss8M
+			-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M</gatling.java.opts>
+
+		<!-- Fully qualified name of the Gatling simulation and a name describing 
+			the test -->
+		<gatling.simulation>edge.poc.sample.SampleSim</gatling.simulation>
+		<gatling.test.name>GatlingSimSample</gatling.test.name>
+
+		<!-- S3 integration settings -->
+		<s3.upload.enabled>false</s3.upload.enabled>
+		<s3.bucket>loadtest-results</s3.bucket>
+		<s3.subfolder>my-loadtest</s3.subfolder>
+
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.11.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-reflect</artifactId>
+			<version>2.11.8</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gatling.highcharts</groupId>
+			<artifactId>gatling-charts-highcharts</artifactId>
+			<version>${gatling.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.gatling</groupId>
+			<artifactId>gatling-core</artifactId>
+			<version>${gatling.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gatling</groupId>
+			<artifactId>gatling-compiler</artifactId>
+			<version>${gatling.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gatling</groupId>
+			<artifactId>gatling-app</artifactId>
+			<version>${gatling.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gatling</groupId>
+			<artifactId>gatling-metrics</artifactId>
+			<version>${gatling.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.gatling</groupId>
+			<artifactId>gatling-http</artifactId>
+			<version>${gatling.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src/test/scala</sourceDirectory>
+		<testSourceDirectory>src/test/scala</testSourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Required for running smaller Gatling simulations locally for debugging 
+				purposes -->
+			<plugin>
+				<groupId>io.gatling</groupId>
+				<artifactId>gatling-maven-plugin</artifactId>
+				<version>${gatling-plugin.version}</version>
+				<executions>
+					<execution>
+						<phase>test</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<dataFolder>src/test/resources/data</dataFolder>
+					<resultsFolder>target/gatling/results</resultsFolder>
+					<simulationsFolder>src/test/scala</simulationsFolder>
+					<simulationClass>${gatling.simulation}</simulationClass>
+					<jvmArgs>
+						<!-- Enable this for debugging: -->
+						<!--jvmArg>-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=7000</jvmArg -->
+					</jvmArgs>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
