@@ -4,13 +4,12 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import io.gatling.core.structure.ScenarioBuilder
-import io.gatling.core.feeder.RecordSeqFeederBuilder;
 import io.gatling.core.structure.ChainBuilder
 
 class SampleSim extends SampleGatlingConfig {
   val namespaces: List[(String, String)] = List(("xlink", "http://www.w3.org/1999/xlink"));
   val homwReqstBldr: HttpRequestBuilder = http("GET HOME PAGE").get("/sqlrest/").check(xpath("//@xlink:href", namespaces).findAll.saveAs("difflists"));
-  val queryParamFeeder: RecordSeqFeederBuilder[String] = csv("abcd.csv").random
+  val queryParamFeeder = csv("data/abcd.csv").random
   var detailUrls: String = "detailUrls"
   var detailUrl: String = "detailUrl"
   var detailedChain: ChainBuilder = exec(getHttpRequestBlr(getGatlingVariable("difflist"), detailUrls))
@@ -28,6 +27,6 @@ class SampleSim extends SampleGatlingConfig {
     "${" + variable + "}"
   }
   setUp(
-    scn.inject(atOnceUsers(10))).protocols(httpConf)
+    scn.inject(atOnceUsers(1))).protocols(httpConf)
 
 }
