@@ -26,7 +26,17 @@ class SampleSim extends SampleGatlingConfig {
   def getGatlingVariable(variable: String): String = {
     "${" + variable + "}"
   }
+
   setUp(
-    scn.inject(atOnceUsers(1))).protocols(httpConf)
+    scn.inject(
+      nothingFor(4), // 1
+      atOnceUsers(10), // 2
+      rampUsers(10) during (5), // 3
+      constantUsersPerSec(20) during (15), // 4
+      constantUsersPerSec(20) during (15), // 5
+      rampUsersPerSec(10) to 20 during (10), // 6
+      rampUsersPerSec(10) to 20 during (10), // 7
+      heavisideUsers(1000) during (20) // 8
+    ).protocols(httpConf))
 
 }
